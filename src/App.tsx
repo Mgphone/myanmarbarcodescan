@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import BarcodeScannerComponent from "react-qr-barcode-scanner";
 import toast, { Toaster } from "react-hot-toast";
 
@@ -40,13 +40,13 @@ function App() {
     };
   }, [scanning]);
 
-  const handleScan = (result: unknown, error?: unknown) => {
+  const handleScan = (result: unknown) => {
     if (
       result &&
       typeof result === "object" &&
       result !== null &&
       "text" in result &&
-      typeof (result as any).text === "string"
+      typeof result.text === "string"
     ) {
       const res = result as { text: string };
 
