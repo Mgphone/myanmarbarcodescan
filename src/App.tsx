@@ -7,15 +7,12 @@ function App() {
   const [currentData, setCurrentData] = useState<string>("No result");
   const [error, setError] = useState<string | null>(null);
 
-  // Use online beep sound URL
   const beepSound = useRef(
     new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg")
   );
 
-  // Ref to store timeout ID - number for browsers
   const timeoutRef = useRef<number | null>(null);
 
-  // Manage scanning timeout (1 min)
   useEffect(() => {
     if (scanning) {
       setError(null);
@@ -23,8 +20,8 @@ function App() {
 
       timeoutRef.current = window.setTimeout(() => {
         setScanning(false);
-        setError("No barcode found after 1 minute.");
-      }, 60 * 1000); // 60 seconds
+        setError("No QR code found after 1 minute.");
+      }, 60 * 1000);
     } else {
       if (timeoutRef.current !== null) {
         clearTimeout(timeoutRef.current);
@@ -50,16 +47,18 @@ function App() {
     ) {
       const res = result as { text: string };
 
-      if (timeoutRef.current !== null) {
-        clearTimeout(timeoutRef.current);
-        timeoutRef.current = null;
+      // Optional: filter for QR-specific patterns (e.g., URL or JSON, etc.)
+      if (res.text.trim() !== "") {
+        if (timeoutRef.current !== null) {
+          clearTimeout(timeoutRef.current);
+          timeoutRef.current = null;
+        }
+
+        setCurrentData(res.text);
+        beepSound.current.play();
+        toast.success(`QR scanned: ${res.text}`);
+        setScanning(false);
       }
-
-      setCurrentData(res.text);
-      beepSound.current.play();
-      toast.success(`Product scanned: ${res.text}`);
-
-      setScanning(false);
     } else {
       setCurrentData("No result");
     }
@@ -68,8 +67,7 @@ function App() {
   return (
     <div className="box">
       <Toaster position="top-right" reverseOrder={false} />
-
-      <div className="title">Scanner</div>
+      <div className="title">QR Scanner</div>
 
       <button
         onClick={() => setScanning((prev) => !prev)}
